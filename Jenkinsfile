@@ -72,14 +72,14 @@ pipeline {
 
                     # Start the llama.cpp inference server and mount the models directory
                     # :Z flag is required for SELinux systems (e.g. Fedora/RHEL) to relabel the volume
-                    # The server listens on port 9080 inside the container, mapped to 9080 on the host
+                    # The server listens on port 8080 inside the container, mapped to 8080 on the host
                     sudo podman run -d \
                         --name llama-server \
                         --network llm-net \
                         -v /opt/models:/models:Z \
-                        -p 9080:8080 \
+                        -p 8080:8080 \
                         ghcr.io/ggml-org/llama.cpp:server \
-                        -m /models/model.gguf --host 0.0.0.0 --port 9080
+                        -m /models/model.gguf --host 0.0.0.0 --port 8080
 
                     # Give the server a few seconds to initialize before starting open-webui
                     echo "Waiting for llama-server to be ready..."
@@ -98,13 +98,12 @@ pipeline {
                     fi
 
                     # Start the Open WebUI frontend, exposed on host port 3000
-                    # OPENAI_API_BASE_URL points to llama-server using the internal llm-net network on port 9080
-                    # Note: port 8080 is intentionally avoided as Jenkins is already running on it
+                    # OPENAI_API_BASE_URL points to llama-server using the internal llm-net network on port 8080
                     sudo podman run -d \
                         --name open-webui \
                         --network llm-net \
                         -p 3000:8080 \
-                        -e OPENAI_API_BASE_URL=http://llama-server:9080/v1 \
+                        -e OPENAI_API_BASE_URL=http://llama-server:8080/v1 \
                         -e OPENAI_API_KEY=sk-no-key-required \
                         ghcr.io/open-webui/open-webui:main
 
@@ -152,7 +151,7 @@ pipeline {
         success {
             echo """
 Deploy successful!
-   - llama-server API : http://localhost:9080
+   - llama-server API : http://localhost:8080
    - open-webui       : http://localhost:3000
             """
         }
