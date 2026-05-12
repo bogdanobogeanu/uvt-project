@@ -32,7 +32,7 @@ pipeline {
             steps {
                 sh '''
                     # Check if the network already exists to avoid errors on re-runs
-                    if podman network exists llm-net 2>/dev/null; then
+                    if sudo podman network exists llm-net 2>/dev/null; then
                         echo "Network llm-net already exists, skipping..."
                     else
                         # Create an isolated virtual network for container-to-container communication
@@ -65,7 +65,7 @@ pipeline {
             steps {
                 sh '''
                     # Remove existing container if present (e.g. from a previous pipeline run)
-                    if podman ps -a --format "{{.Names}}" | grep -q "^llama-server$"; then
+                    if sudo podman ps -a --format "{{.Names}}" | grep -q "^llama-server$"; then
                         echo "Container llama-server already exists, removing..."
                         sudo podman rm -f llama-server
                     fi
@@ -92,7 +92,7 @@ pipeline {
             steps {
                 sh '''
                     # Remove existing container if present (e.g. from a previous pipeline run)
-                    if podman ps -a --format "{{.Names}}" | grep -q "^open-webui$"; then
+                    if sudo podman ps -a --format "{{.Names}}" | grep -q "^open-webui$"; then
                         echo "Container open-webui already exists, removing..."
                         sudo podman rm -f open-webui
                     fi
@@ -123,7 +123,7 @@ pipeline {
                     echo ""
                     echo "=== Checking llama-server ==="
                     # Fail the pipeline if llama-server is not in the running containers list
-                    if podman ps --format "{{.Names}}" | grep -q "^llama-server$"; then
+                    if sudo podman ps --format "{{.Names}}" | grep -q "^llama-server$"; then
                         echo "llama-server is running"
                     else
                         echo "llama-server is NOT running"
@@ -135,7 +135,7 @@ pipeline {
                     echo ""
                     echo "=== Checking open-webui ==="
                     # Fail the pipeline if open-webui is not in the running containers list
-                    if podman ps --format "{{.Names}}" | grep -q "^open-webui$"; then
+                    if sudo podman ps --format "{{.Names}}" | grep -q "^open-webui$"; then
                         echo "open-webui is running"
                     else
                         echo "open-webui is NOT running"
