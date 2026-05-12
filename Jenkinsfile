@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        
+
         stage('Cleanup podman stale state') {
             steps {
                 // After a reboot, podman rootless may have stale cache dirs that need to be cleared
@@ -18,7 +18,7 @@ pipeline {
                 '''
             }
         }
-        
+
         stage('Create /opt/models directory') {
             steps {
                 // Run mkdir as root via sudo since /opt is owned by the system
@@ -36,7 +36,7 @@ pipeline {
                         echo "Network llm-net already exists, skipping..."
                     else
                         # Create an isolated virtual network for container-to-container communication
-                        podman network create llm-net
+                        sudo podman network create llm-net
                         echo "Network llm-net created."
                     fi
                 '''
@@ -46,7 +46,7 @@ pipeline {
         stage('Download model') {
             steps {
                 sh '''
-                    # Skip download if the model file is already present (avoid re-downloading hundreds of MB)
+                    # Skip download if the model file is already present
                     if [ -f /opt/models/model.gguf ]; then
                         echo "Model already exists, skipping download..."
                     else
@@ -67,17 +67,17 @@ pipeline {
                     # Remove existing container if present (e.g. from a previous pipeline run)
                     if podman ps -a --format "{{.Names}}" | grep -q "^llama-server$"; then
                         echo "Container llama-server already exists, removing..."
-                        podman rm -f llama-server
+                        sudo podman rm -f llama-server
                     fi
 
                     # Start the llama.cpp inference server and mount the models directory
                     # :Z flag is required for SELinux systems (e.g. Fedora/RHEL) to relabel the volume
                     # The server listens on port 9080 inside the container, mapped to 9080 on the host
-                    podman run -d \
+                    sudo podman run -d \
                         --name llama-server \
                         --network llm-net \
                         -v /opt/models:/models:Z \
-                        -p 9080:9080 \
+                        -p 9080:8080 \
                         ghcr.io/ggml-org/llama.cpp:server \
                         -m /models/model.gguf --host 0.0.0.0 --port 9080
 
@@ -94,13 +94,13 @@ pipeline {
                     # Remove existing container if present (e.g. from a previous pipeline run)
                     if podman ps -a --format "{{.Names}}" | grep -q "^open-webui$"; then
                         echo "Container open-webui already exists, removing..."
-                        podman rm -f open-webui
+                        sudo podman rm -f open-webui
                     fi
 
                     # Start the Open WebUI frontend, exposed on host port 3000
                     # OPENAI_API_BASE_URL points to llama-server using the internal llm-net network on port 9080
                     # Note: port 8080 is intentionally avoided as Jenkins is already running on it
-                    podman run -d \
+                    sudo podman run -d \
                         --name open-webui \
                         --network llm-net \
                         -p 3000:8080 \
@@ -118,7 +118,7 @@ pipeline {
             steps {
                 sh '''
                     echo "=== Running containers ==="
-                    podman ps
+                    sudo podman ps
 
                     echo ""
                     echo "=== Checking llama-server ==="
@@ -128,7 +128,7 @@ pipeline {
                     else
                         echo "llama-server is NOT running"
                         # Print logs to help diagnose the failure
-                        podman logs llama-server || true
+                        sudo podman logs llama-server || true
                         exit 1
                     fi
 
@@ -140,7 +140,7 @@ pipeline {
                     else
                         echo "open-webui is NOT running"
                         # Print logs to help diagnose the failure
-                        podman logs open-webui || true
+                        sudo podman logs open-webui || true
                         exit 1
                     fi
                 '''
@@ -160,9 +160,9 @@ Deploy successful!
             // On failure, dump container state and logs for easier debugging
             sh '''
                 echo "=== Debug info ==="
-                podman ps -a || true
-                podman logs llama-server 2>/dev/null || true
-                podman logs open-webui 2>/dev/null || true
+                sudo podman ps -a || true
+                sudo podman logs llama-server 2>/dev/null || true
+                sudo podman logs open-webui 2>/dev/null || true
             '''
         }
     }
