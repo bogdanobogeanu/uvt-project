@@ -8,7 +8,7 @@ Continuous integration (CI) este o practica DevOps in care membrii unei echipe c
 Cu ce ne va ajuta pe noi Jenkins?
 Vom automatiza procesul de build si deploy a imaginilor docker. Buildul se va face de catre Jenkins ori de cate ori se va comite o modificare a codului in GitHub. Apoi noua imagine se va push-ui in DockerHub automat , tot din Jeknins.
 
-Acest tutorial este salvat in git in fisierul README.md pe acest URL: https://github.com/bogdanobogeanu/nodejs-uvt/blob/master/README.md
+Acest tutorial este salvat in git in fisierul README.md pe acest URL: https://github.com/bogdanobogeanu/uvt-project/blob/master/README.md
 O sa va fie de ajutor sa accesati URL-ul pe masina virtuala si sa copiati comenzile din pagina web in terminal decat sa tastati fiecare comanda manual.
 
 Instalare Jenkins intr-o masina virtuala care ruleaza Rocky Linux 9
