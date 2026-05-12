@@ -1,13 +1,24 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-        ansiColor('xterm')
-    }
-
     stages {
-
+        
+        stage('Cleanup podman stale state') {
+            steps {
+                // After a reboot, podman rootless may have stale cache dirs that need to be cleared
+                sh '''
+                    STORAGE_RUN=$(ls /tmp/ | grep storage-run)
+                    if [ -n "$STORAGE_RUN" ]; then
+                        rm -rf /tmp/${STORAGE_RUN}/containers
+                        rm -rf /tmp/${STORAGE_RUN}/libpod/tmp
+                        echo "Cleaned up stale podman state from /tmp/${STORAGE_RUN}"
+                    else
+                        echo "No stale podman state found, skipping..."
+                    fi
+                '''
+            }
+        }
+        
         stage('Create /opt/models directory') {
             steps {
                 // Run mkdir as root via sudo since /opt is owned by the system
