@@ -8,7 +8,7 @@ Continuous integration (CI) este o practica DevOps in care membrii unei echipe c
 Cu ce ne va ajuta pe noi Jenkins?
 Vom automatiza procesul de build si deploy a imaginilor docker. Buildul se va face de catre Jenkins ori de cate ori se va comite o modificare a codului in GitHub. Apoi noua imagine se va push-ui in DockerHub automat , tot din Jeknins.
 
-Acest tutorial este salvat in git in fisierul README.md pe acest URL: https://github.com/bogdanobogeanu/uvt-project/blob/master/README.md
+Acest tutorial este salvat in git in fisierul README.md pe acest URL: https://github.com/bogdanobogeanu/nodejs-uvt/blob/master/README.md
 O sa va fie de ajutor sa accesati URL-ul pe masina virtuala si sa copiati comenzile din pagina web in terminal decat sa tastati fiecare comanda manual.
 
 Instalare Jenkins intr-o masina virtuala care ruleaza Rocky Linux 9
@@ -74,7 +74,7 @@ Putem observa cuvintele de culoare verde: active (running). Asta ne spune ca Jen
 
 Pasul 4: Configurați Jenkins pe Rocky Linux 9 din interfața web
 După instalare și pornirea serviciului, mergeți la consola browserului web pe URL:
-http://localhost:8080
+http://localhost:8081
 Ar trebui să vedeti o pagină de bun venit și instructiuni despre cum să obțineți parola inițială de administrator:
  
 Ca sa vedem parola initiala, trebuie sa efectuam comanda cat pe fisierul /var/lib/jenkins/secrets/initialAdminPassword (Parola initiala e diferita la fiecare instalare, cand instalati voi, o sa aveti o alta parola initiala):
@@ -149,7 +149,7 @@ echo "jenkins ALL=(root) NOPASSWD: ALL " >> /etc/sudoers.d/jenkins
 Jenkins automation
 
 Exercițiu Jenkins Pipeline – Deploy Local AI Stack cu Podman
-Descriere
+
 În acest exercițiu veți crea un Jenkins Pipeline care automatizează deploy-ul unui stack AI local, format din două componente:
 
 llama-server – un server de inferență bazat pe llama.cpp care încarcă un model de limbaj (LLM) și expune o API compatibilă OpenAI
@@ -179,6 +179,7 @@ Click pe New Item:
  
 
 Adaugati un nume pentru pipeline, exemplu “AI-deploy”, selectati Pipeline la item type apoi click pe OK
+
  
 O sa apara pagina de configurare a pipeline, care incepe cu partea generala de setari (General)
  
